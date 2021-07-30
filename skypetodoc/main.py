@@ -63,7 +63,14 @@ def exportAsDocx(chat, dest):
     for message in list(chat['MessageList'])[::-1]:
         author = message['from']
         content = message['content']
-        content = re.sub(r'<a href=.*\">', '', content)
+        content = re.sub(r'(<a href=.*\">)|(</a>)', '', content)
+        content = re.sub(r'(<ss type=.*\">)|(</ss>)', '', content)
+        if re.search(r'</legacyquote>.*<legacyquote>', content):
+            quoteContent = re.search(r'</legacyquote>.*<legacyquote>', content).__getitem__(0)
+            quoteContent = re.sub(r'(</legacyquote>)|(<legacyquote>)', '', quoteContent)
+            quoteAuthor = re.sub(r'(author=)|(authorname)', '', re.search(r'author=\".*\" authorname', content).__getitem__(0))
+            content = re.sub(r'<quote.*</legacyquote>', ( 'Quote ' + quoteAuthor + ': \n'), content, flags=re.DOTALL)
+            content = re.sub(r'<legacyquote>.*</quote>', 'End of Qute', content, flags=re.DOTALL)
         time = message['originalarrivaltime']
         document.add_heading((author, ' wrote at ', time, ' : '), level=4)
         document.add_paragraph(content)
