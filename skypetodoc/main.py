@@ -15,7 +15,7 @@ def extractChats(fn):
 
 
 def loadJson(fn):
-    file = open(fn)
+    file = open(fn, encoding='utf8')
     jsonContent = json.load(file)
     file.close()
     return jsonContent
