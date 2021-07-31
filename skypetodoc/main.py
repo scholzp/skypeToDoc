@@ -65,12 +65,18 @@ def exportAsDocx(chat, dest):
         content = message['content']
         content = re.sub(r'(<a href=.*\">)|(</a>)', '', content)
         content = re.sub(r'(<ss type=.*\">)|(</ss>)', '', content)
-        if re.search(r'</legacyquote>.*<legacyquote>', content):
-            quoteContent = re.search(r'</legacyquote>.*<legacyquote>', content).__getitem__(0)
+        if re.search(r'</legacyquote>.*<legacyquote>', content, flags=re.DOTALL):
+            quoteContent = re.search(r'</legacyquote>.*<legacyquote>', content, flags=re.DOTALL).__getitem__(0)
             quoteContent = re.sub(r'(</legacyquote>)|(<legacyquote>)', '', quoteContent)
             quoteAuthor = re.sub(r'(author=)|(authorname)', '', re.search(r'author=\".*\" authorname', content).__getitem__(0))
-            content = re.sub(r'<quote.*</legacyquote>', ( 'Quote ' + quoteAuthor + ': \n'), content, flags=re.DOTALL)
-            content = re.sub(r'<legacyquote>.*</quote>', 'End of Qute', content, flags=re.DOTALL)
+            content = re.sub(r'<quote.*</legacyquote>', ( ' ---------------------- Quote ' + quoteAuthor + ': \n' + quoteContent + '\n---------------------- End of Quote \n'), content, flags=re.DOTALL)
+
+            content = re.sub(r'</quote>', '', content, flags=re.DOTALL)
+            content = re.sub(r'</quote>', '', content, flags=re.DOTALL)
+            content = re.sub(r'&quot;', '\"', content)
+            content = re.sub(r'&gt;', '>', content)
+            content = re.sub(r'&lt;', '<', content)
+            print(content)
         time = message['originalarrivaltime']
         document.add_heading((author, ' wrote at ', time, ' : '), level=4)
         document.add_paragraph(content)
